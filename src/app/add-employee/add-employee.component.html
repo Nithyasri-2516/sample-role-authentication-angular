@@ -1,0 +1,97 @@
+<!-- Side Navbar -->
+<div class="sidenav" [ngClass]="{'open': isSideNavOpen}">
+  <a href="javascript:void(0)" class="closebtn" (click)="toggleSideNav()">&times;</a>
+  <a routerLink="/">Home</a>
+  <a routerLink="/assignTasks">View Employees</a>
+  <a class="btn-save" (click)="openModal()">Add Employee</a>
+</div>
+
+<!-- Main Content Area -->
+<div id="main">
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand text-white" routerLink="/" (click)="toggleSideNav()">Employee Management</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <button class="btn-save" (click)="openModal()">Add Employee</button>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" routerLink="/assignTasks">View Employees</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Modal Popup for Adding Employee -->
+  <div class="modal" [ngClass]="{'show-modal': showModal}">
+    <div class="modal-content">
+      <span class="modal-close" (click)="closeModal()">&times;</span>
+      <div class="modal-header">Add New Employee</div>
+      <div class="modal-body">
+        <form [formGroup]="employeeForm">
+          
+          <!-- Name Input -->
+          <div class="form-group">
+            <label for="employeeName">Name</label>
+            <input id="employeeName" type="text" formControlName="name" />
+          </div>
+
+          <!-- Employee ID Input -->
+          <div class="form-group">
+            <label for="employeeEmpid">Employee ID</label>
+            <input id="employeeEmpid" type="number" formControlName="empid" />
+          </div>
+
+          <!-- Email Input -->
+          <div class="form-group">
+            <label for="employeeEmail">Email-Id</label>
+            <input type="email" formControlName="email" required autocomplete="email">
+          </div>
+
+          <!-- Password Input -->
+          <div class="form-group">
+            <label for="employeePassword">Password</label>
+            <input type="password" formControlName="password" required autocomplete="current-password">
+          </div>
+
+          <!-- Role Selection -->
+          <div class="form-group">
+            <label for="employeeRole">Role</label>
+            <select id="employeeRole" formControlName="role">
+              <option value="Manager">Manager</option>
+              <option value="TL">TL</option>
+              <option value="Employee">Employee</option>
+            </select>
+          </div>
+
+          <!-- Manager Dropdown (for TLs) -->
+          <div class="form-group" *ngIf="employeeForm.get('role')?.value === 'TL'">
+            <label for="managerId">Select Manager</label>
+            <select id="managerId" formControlName="managerId">
+              <option *ngFor="let manager of managers" [value]="manager._id">
+                {{ manager.data.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- TL Dropdown (for Employees) -->
+          <div class="form-group" *ngIf="employeeForm.get('role')?.value === 'Employee'">
+            <label for="tlId">Select TL</label>
+            <select id="tlId" formControlName="tlId">
+              <option *ngFor="let tl of tls" [value]="tl._id">{{ tl.data.name }}</option>
+            </select>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="form-actions">
+            <button type="button" class="btn-reset" (click)="resetEmployeeForm()">Reset</button>
+            <button type="button" class="btn-save" (click)="save()">Save Employee</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

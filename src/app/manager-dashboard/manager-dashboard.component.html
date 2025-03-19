@@ -1,0 +1,46 @@
+<div class="manager-dashboard">
+    <h2>Manager Dashboard</h2>
+  
+    <!-- Assign Task Form -->
+    <form [formGroup]="assignTaskForm" (ngSubmit)="assignTask()">
+      <h3>Assign Task to Team Lead</h3>
+  
+      <label for="tlId">Select Team Lead:</label>
+      <select formControlName="tlId">
+        <option *ngFor="let tl of tls" [value]="tl._id">{{ tl.data.name }}</option>
+      </select>
+  
+      <label for="taskTitle">Task Title:</label>
+      <input type="text" formControlName="taskTitle" required />
+  
+      <label for="description">Description:</label>
+      <textarea formControlName="description" required></textarea>
+  
+      <label for="dueDate">Due Date:</label>
+      <input type="date" formControlName="dueDate" required />
+  
+      <button type="submit" [disabled]="assignTaskForm.invalid">Assign Task</button>
+    </form>
+  
+    <!-- Assigned Tasks List -->
+    <h3>Assigned Tasks</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Task Title</th>
+          <th>Team Lead</th>
+          <th>Due Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let task of assignedTasks">
+          <td>{{ task.title }}</td>
+          <td>{{ task.tlId }}</td>
+          <td>{{ task.dueDate }}</td>
+          <td>{{ task.status }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
