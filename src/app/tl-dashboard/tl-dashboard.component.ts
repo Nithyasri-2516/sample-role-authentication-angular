@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CouchdbService } from '../couchdb.service';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-tl-dashboard',
   templateUrl: './tl-dashboard.component.html',
+
   styleUrls: ['./tl-dashboard.component.css'],
   standalone:true,
   imports:[HttpClientModule,RouterModule,CommonModule,ReactiveFormsModule],
@@ -19,7 +20,7 @@ export class TLDashboardComponent {
   assignedTasks: any[] = []; // Tasks assigned by the manager
   tlId: string = '3'; // Replace with the logged-in TL's ID (should be dynamically fetched)
 
-  constructor(private fb: FormBuilder, private couchdbService: CouchdbService) {
+  constructor(readonly fb: FormBuilder, readonly couchdbService: CouchdbService) {
     this.assignTaskForm = this.fb.group({
       employeeId: ['', Validators.required],
       taskTitle: ['', Validators.required],
@@ -71,27 +72,37 @@ export class TLDashboardComponent {
   
   // Assign task to an employee
   assignTask() {
-    if (this.assignTaskForm.invalid) return;
-
+    if (this.assignTaskForm.invalid) {
+      console.error("Form is invalid:", this.assignTaskForm.value);
+      return;
+    }
+  
     const task = {
       _id: `task_by_tl_${this.tlId}_${new Date().getTime()}`,
-      type: 'task',
+      type: 'task', // ✅ Correct type
       data: {
         employeeId: this.assignTaskForm.value.employeeId,
         title: this.assignTaskForm.value.taskTitle,
         description: this.assignTaskForm.value.description,
         dueDate: this.assignTaskForm.value.dueDate,
-        status: 'Pending'
+        status: 'Pending',
+        tlId: this.tlId // ✅ Ensure this matches your query
       }
     };
-
+  
+    console.log("Assigning Task:", task); // Debug log
+  
     this.couchdbService.createDocument(task).subscribe(
-      () => {
+      (response) => {
+        console.log("Task Created Successfully:", response);
         alert('Task Assigned Successfully');
         this.assignTaskForm.reset();
         this.loadAssignedTasks();
       },
-      (error) => console.error('Error assigning task:', error)
+      (error) => {
+        console.error('Error creating task:', error);
+      }
     );
   }
+  
 }

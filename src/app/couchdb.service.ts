@@ -11,12 +11,12 @@ export class CouchdbService {
   readonly userName = 'd_couchdb';
   readonly password = 'Welcome#2';
 
-  private headers = new HttpHeaders({
+ readonly headers  = new HttpHeaders({
     'Authorization': 'Basic ' + btoa(this.userName + ':' + this.password),
     'Content-Type': 'application/json',
   });
 
-  constructor(private http: HttpClient) {}
+  constructor(readonly http: HttpClient) {}
 
   
   login(email: string, password: string): Observable<any> {
@@ -95,18 +95,7 @@ export class CouchdbService {
       })
     );
   }
-  // queryTasksByManager(tlId: string): Observable<any> {
-  //   const url = `${this.baseURL}/_design/task-management/_view/tasks_by_manager?key="${tlId}"&include_docs=true`;
   
-  //   return this.http.get<any>(url, { headers: this.headers }).pipe(
-  //     map(response => response.rows.map((row: any) => row.doc)), // Extract docs
-  //     catchError(error => {
-  //       console.error('Error fetching assigned tasks:', error);
-  //       return throwError(error);
-  //     })
-  //   );
-  // }
-
   queryTasksByManager(tlId: string): Observable<any> {
     const url = `${this.baseURL}/_design/task-management/_view/tasks_by_manager?key="${tlId}"&include_docs=true`;
   
@@ -114,10 +103,11 @@ export class CouchdbService {
       map(response => response.rows.map((row: any) => row.doc)), // Extract docs
       catchError(error => {
         console.error('Error fetching assigned tasks:', error);
-        return throwError(error);
+        return throwError(() => new Error(error.message));
       })
     );
   }
+  
   
   getEmployeesByTL(tlId: string): Observable<any> {
     const url = `${this.baseURL}/_design/task-management/_view/employees_by_tl?key="${tlId}"&include_docs=true`;
@@ -129,6 +119,9 @@ export class CouchdbService {
       })
     );
   }
+  
+  
+  
   
   
   

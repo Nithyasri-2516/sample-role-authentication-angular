@@ -4,7 +4,6 @@ import { CouchdbService } from '../couchdb.service';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule, NgIf } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { routes } from '../app.routes';
 
 @Component({
   selector: 'app-login',
@@ -38,9 +37,9 @@ export class LoginComponent {
         // Simulate an Admin user object
         const adminUser = { data: { role: 'Admin', email: this.ADMIN_EMAIL } };
         localStorage.setItem('user', JSON.stringify(adminUser)); // Store Admin session
-        console.log("login");
+        console.log("login successful");
         
-        alert("login successfull, redirecting to admin page")
+        alert("login s, redirecting to admin page")
         this.router.navigate(['/admin-dashboard']);
         return;
       }
