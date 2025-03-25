@@ -8,10 +8,10 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, CommonModule, NgIf, HttpClientModule,RouterModule],
+  imports: [ReactiveFormsModule, FormsModule, CommonModule, NgIf, HttpClientModule, RouterModule],
   providers: [CouchdbService, HttpClient],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrls: ['./login.component.css'] // ✅ Fixed styleUrls property
 })
 export class LoginComponent {
 
@@ -25,38 +25,43 @@ export class LoginComponent {
   });
 
   errorMessage: string = '';
-
+  
   constructor(readonly couchdbService: CouchdbService, readonly router: Router) {}
 
   login() {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
-
+  
       // Check if the entered credentials match the hardcoded Admin credentials
       if (email === this.ADMIN_EMAIL && password === this.ADMIN_PASSWORD) {
         // Simulate an Admin user object
         const adminUser = { data: { role: 'Admin', email: this.ADMIN_EMAIL } };
         localStorage.setItem('user', JSON.stringify(adminUser)); // Store Admin session
-        console.log("login successful");
+        console.log('Login successful');
         
-        alert("login s, redirecting to admin page")
+        alert('Login successful, redirecting to admin page');
         this.router.navigate(['/admin-dashboard']);
         return;
       }
-
+  
       // If not Admin, proceed with CouchDB authentication
-      this.couchdbService.login(email!, password!).subscribe(
-        (user) => {
+      this.couchdbService.login(email!, password!).subscribe({
+        next: (user) => {
           if (!user || !user.data.role) {
             this.errorMessage = 'Invalid user data';
             return;
           }
-
+  
           localStorage.setItem('user', JSON.stringify(user)); // Store user session
+
+          // ✅ Store TL ID for later use in tl-dashboard.component.ts
+          if (user.data.role === 'TL' && user._id) {
+            localStorage.setItem('tlId', user._id);
+          }
 
           switch (user.data.role) {
             case 'Manager':
-              this.router.navigate(['/manger-dashboard']);
+              this.router.navigate(['/manager-dashboard']);
               break;
             case 'TL':
               this.router.navigate(['/tl-dashboard']);
@@ -68,11 +73,11 @@ export class LoginComponent {
               this.errorMessage = 'Unauthorized role';
           }
         },
-        (error) => {
+        error: (error) => {
           this.errorMessage = 'Invalid email or password';
           console.error('Login Error:', error);
         }
-      );
+      });
     }
   }
 }

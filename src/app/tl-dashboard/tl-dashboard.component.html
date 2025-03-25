@@ -5,10 +5,15 @@
     <form [formGroup]="assignTaskForm" (ngSubmit)="assignTask()">
       <h3>Assign Task to Employee</h3>
     
-      <label for="employeeId">Select Employee:</label>
-      <select formControlName="employeeId">
-        <option *ngFor="let employee of employees" [value]="employee._id">{{ employee.data.name }}</option>
-      </select>
+      <!-- Employee Dropdown -->
+<label for="employeeId">Select Employee:</label>
+<select formControlName="employeeId" required>
+  <option *ngIf="employees.length === 0" disabled>No employees available</option>
+  <option *ngFor="let employee of employees" [value]="employee._id">
+    {{ employee.data?.name || 'Unnamed Employee' }} ({{ employee._id }})
+  </option>
+</select>
+
     
       <label for="taskTitle">Task Title:</label>
       <input type="text" formControlName="taskTitle" required />

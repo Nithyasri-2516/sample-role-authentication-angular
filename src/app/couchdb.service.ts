@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +16,7 @@ export class CouchdbService {
     'Content-Type': 'application/json',
   });
 
-  constructor(readonly http: HttpClient) {}
+  constructor(readonly http: HttpClient) { }
 
   
   login(email: string, password: string): Observable<any> {
@@ -36,11 +36,12 @@ export class CouchdbService {
         console.log(' Retrieved User:', user);
 
         //  Validate user structure
-        if (!user.data || !user.data.password) {
-          console.error(' Invalid user data structure:', user);
+        if (!user?.data?.password) {
+          console.error('Invalid user data structure:', user);
           throw new Error('Invalid user data structure');
         }
-
+        
+   
         console.log(' Stored Password:', `"${user.data.password}"`);
         console.log('Input Password:', `"${password}"`);
 
@@ -111,14 +112,31 @@ export class CouchdbService {
   
   getEmployeesByTL(tlId: string): Observable<any> {
     const url = `${this.baseURL}/_design/task-management/_view/employees_by_tl?key="${tlId}"&include_docs=true`;
-    
+
+    console.log('ℹ️ Fetching Employees from:', url);  // ✅ Logs exact URL
+
     return this.http.get<any>(url, { headers: this.headers }).pipe(
+      tap(response => console.log('📥 Raw Response:', response)),  // ✅ Debug response
+      map(response => {
+        console.log('📊 Total Rows:', response.total_rows);
+        console.log('📌 View Rows:', response.rows);
+
+        if (!response.rows || response.rows.length === 0) {
+          console.warn('⚠️ No employees found for TL ID:', tlId);
+          return [];
+        }
+
+        return response.rows.map((row: { doc: any; }) => row.doc); // ✅ Extract employee docs
+      }),
       catchError(error => {
-        console.error(`Error fetching employees for TL ${tlId}:`, error);
+        console.error(`❌ Error fetching employees for TL ${tlId}:`, error);
         return throwError(() => new Error(error.message));
       })
     );
   }
+
+  
+  
   
   
   

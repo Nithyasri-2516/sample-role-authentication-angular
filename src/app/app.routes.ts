@@ -9,6 +9,6 @@ export const routes: Routes = [
     {path:'',component:LoginComponent},
     {path:'admin-dashboard',component:AddEmployeeComponent},
    
-    {path:'manger-dashboard',component:ManagerDashboardComponent},
+    {path:'manager-dashboard',component:ManagerDashboardComponent},
     {path:'tl-dashboard',component:TLDashboardComponent}
 ];
